@@ -6,7 +6,7 @@ import com.example.dipendente.model.Dipendente;
 
 public interface DipendenteService {
 	
-	public Dipendente save(Dipendente transientInstance);
+	public Dipendente inserisciNuovo(Dipendente transientInstance);
 
 	public List<Dipendente> listAll();
 

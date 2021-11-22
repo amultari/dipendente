@@ -32,6 +32,11 @@ public class Dipendente {
 		this.cf = cf;
 	}
 
+	public Dipendente(Long id, String nome, String cognome, Date dataNascita, String cf) {
+		this(nome, cognome, dataNascita, cf);
+		this.id = id;
+	}
+
 	public Long getId() {
 		return id;
 	}

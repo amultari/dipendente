@@ -27,7 +27,7 @@ public class DipendenteServiceImpl implements DipendenteService {
 
 	@Override
 	@Transactional
-	public Dipendente save(Dipendente transientInstance) {
+	public Dipendente inserisciNuovo(Dipendente transientInstance) {
 		return dipendenteRepository.save(transientInstance);
 	}
 

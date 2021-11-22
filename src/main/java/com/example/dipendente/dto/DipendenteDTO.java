@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.example.dipendente.model.Dipendente;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-@JsonInclude(JsonInclude.Include.NON_NULL) 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DipendenteDTO {
 
 	private Long id;
@@ -77,6 +77,10 @@ public class DipendenteDTO {
 
 	public void setNumeroPrevidenziale(String numeroPrevidenziale) {
 		this.numeroPrevidenziale = numeroPrevidenziale;
+	}
+
+	public Dipendente buildDipendenteModel() {
+		return new Dipendente(this.id, this.nome, this.cognome, this.dataNascita, this.cf);
 	}
 
 	public static DipendenteDTO buildDipendenteDTOFromModel(Dipendente dipendenteModel) {

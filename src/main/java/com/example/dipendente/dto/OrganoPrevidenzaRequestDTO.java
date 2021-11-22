@@ -1,16 +1,15 @@
 package com.example.dipendente.dto;
 
-public class OrganoPrevidenzaResponseDTO {
+public class OrganoPrevidenzaRequestDTO {
 	private String nome;
 	private String cognome;
 	private String codiceFiscale;
-	private String codicePrevidenziale;
 
-	public OrganoPrevidenzaResponseDTO() {
+	public OrganoPrevidenzaRequestDTO() {
 
 	}
 
-	public OrganoPrevidenzaResponseDTO(String nome, String cognome, String codiceFiscale) {
+	public OrganoPrevidenzaRequestDTO(String nome, String cognome, String codiceFiscale) {
 		super();
 		this.nome = nome;
 		this.cognome = cognome;
@@ -39,14 +38,6 @@ public class OrganoPrevidenzaResponseDTO {
 
 	public void setCodiceFiscale(String codiceFiscale) {
 		this.codiceFiscale = codiceFiscale;
-	}
-
-	public String getCodicePrevidenziale() {
-		return codicePrevidenziale;
-	}
-
-	public void setCodicePrevidenziale(String codicePrevidenziale) {
-		this.codicePrevidenziale = codicePrevidenziale;
 	}
 
 }
