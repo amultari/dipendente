@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/dipendente")
-public class DipendenteRestController {
+public class DipendenteController {
 
 	@Autowired
 	private DipendenteService dipendenteService;
@@ -45,15 +45,13 @@ public class DipendenteRestController {
 		// previdenziale
 		// nel caso affermativo valorizzo apposito campo
 		// il block significa agire in maniera sincrona, attendendo la risposta
-		OrganoPrevidenzaResponseDTO organoPrevidenzaResponseDTO = webClient.get()
-				.uri("/" + dipendenteModel.getCf())
-				.retrieve()
-				.bodyToMono(OrganoPrevidenzaResponseDTO.class)
-				.block();
+		OrganoPrevidenzaResponseDTO organoPrevidenzaResponseDTO = webClient.get().uri("/" + dipendenteModel.getCf())
+				.retrieve().bodyToMono(OrganoPrevidenzaResponseDTO.class).block();
 
 		DipendenteDTO result = DipendenteDTO.buildDipendenteDTOFromModel(dipendenteModel);
 
-		if (organoPrevidenzaResponseDTO != null
+		//se l'altra banca ha trovato qualcosa io riempio il DTO altrimenti no
+		if (organoPrevidenzaResponseDTO != null && organoPrevidenzaResponseDTO.getCodiceFiscale() != null
 				&& organoPrevidenzaResponseDTO.getCodiceFiscale().equals(result.getCf()))
 			result.setNumeroPrevidenziale(organoPrevidenzaResponseDTO.getCodicePrevidenziale());
 
@@ -70,18 +68,15 @@ public class DipendenteRestController {
 			throw new RuntimeException("Non è ammesso fornire un id per la creazione");
 
 		// prima di salvarlo devo verificare se la banca dati esterna lo censisce
-		ResponseEntity<OrganoPrevidenzaResponseDTO> response = webClient.post()
-				.uri("")
+		ResponseEntity<OrganoPrevidenzaResponseDTO> response = webClient.post().uri("")
 				.body(Mono.just(new OrganoPrevidenzaRequestDTO(dipendenteInput.getNome(), dipendenteInput.getCognome(),
 						dipendenteInput.getCf())), OrganoPrevidenzaRequestDTO.class)
-				.retrieve()
-				.toEntity(OrganoPrevidenzaResponseDTO.class)
-				.block();
-		
-		//ANDREBBE GESTITA CON ADVICE!!!
-		if(response.getStatusCode() != HttpStatus.CREATED)
+				.retrieve().toEntity(OrganoPrevidenzaResponseDTO.class).block();
+
+		// ANDREBBE GESTITA CON ADVICE!!!
+		if (response.getStatusCode() != HttpStatus.CREATED)
 			throw new RuntimeException("Errore nella creazione della nuova voce tramite api esterna!!!");
-		
+
 		Dipendente dipendenteInserito = dipendenteService.inserisciNuovo(dipendenteInput.buildDipendenteModel());
 		return DipendenteDTO.buildDipendenteDTOFromModel(dipendenteInserito);
 	}
