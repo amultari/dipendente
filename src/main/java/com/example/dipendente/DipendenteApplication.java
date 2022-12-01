@@ -2,6 +2,8 @@ package com.example.dipendente;
 
 import java.text.SimpleDateFormat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +14,8 @@ import com.example.dipendente.service.DipendenteService;
 
 @SpringBootApplication
 public class DipendenteApplication implements CommandLineRunner {
+	
+	private static final Logger LOGGER = LogManager.getLogger(DipendenteApplication.class);
 
 	@Autowired
 	private DipendenteService dipendenteService;
@@ -22,10 +26,6 @@ public class DipendenteApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("...tutti......");
-		dipendenteService.listAll().forEach(d -> System.out.println(d.getCf()));
-		System.out.println("...fine......");
-
 		// Inizializzo db
 		dipendenteService.inserisciNuovo(new Dipendente("Mario", "Rossi",
 				new SimpleDateFormat("dd/MM/yyyy").parse("13/12/1978"), "MARROSS78P13H501F"));
@@ -35,6 +35,10 @@ public class DipendenteApplication implements CommandLineRunner {
 				new SimpleDateFormat("dd/MM/yyyy").parse("22/02/1988"), "ANTMAR88P13H501F"));
 		dipendenteService.inserisciNuovo(new Dipendente("Ottavio", "Malta",
 				new SimpleDateFormat("dd/MM/yyyy").parse("11/04/1962"), "OTTMAL62P13H501F"));
+		
+		LOGGER.info("...Elenco tutti......");
+		dipendenteService.listAll().forEach(d -> LOGGER.info(d.getCf()));
+		LOGGER.info("...fine......");
 
 	}
 

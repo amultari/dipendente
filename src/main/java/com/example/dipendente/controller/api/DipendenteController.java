@@ -2,6 +2,8 @@ package com.example.dipendente.controller.api;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/dipendente")
 public class DipendenteController {
 
+	private static final Logger LOGGER = LogManager.getLogger(DipendenteController.class);
+
 	@Autowired
 	private DipendenteService dipendenteService;
 
@@ -45,15 +49,20 @@ public class DipendenteController {
 		// previdenziale
 		// nel caso affermativo valorizzo apposito campo
 		// il block significa agire in maniera sincrona, attendendo la risposta
+		LOGGER.info("....invocazione servizio esterno....con CF: " + dipendenteModel.getCf());
 		OrganoPrevidenzaResponseDTO organoPrevidenzaResponseDTO = webClient.get().uri("/" + dipendenteModel.getCf())
 				.retrieve().bodyToMono(OrganoPrevidenzaResponseDTO.class).block();
+		LOGGER.info("....invocazione servizio esterno terminata....");
 
 		DipendenteDTO result = DipendenteDTO.buildDipendenteDTOFromModel(dipendenteModel);
 
-		//se l'altra banca ha trovato qualcosa io riempio il DTO altrimenti no
+		// se l'altra banca ha trovato qualcosa io riempio il DTO altrimenti no
 		if (organoPrevidenzaResponseDTO != null && organoPrevidenzaResponseDTO.getCodiceFiscale() != null
-				&& organoPrevidenzaResponseDTO.getCodiceFiscale().equals(result.getCf()))
+				&& organoPrevidenzaResponseDTO.getCodiceFiscale().equals(result.getCf())) {
 			result.setNumeroPrevidenziale(organoPrevidenzaResponseDTO.getCodicePrevidenziale());
+			LOGGER.info("....invocazione servizio esterno avvenuta con response affermativa....posizione previdenziale: "
+					+ organoPrevidenzaResponseDTO.getCodicePrevidenziale());
+		}
 
 		return result;
 	}
@@ -68,6 +77,7 @@ public class DipendenteController {
 			throw new RuntimeException("Non è ammesso fornire un id per la creazione");
 
 		// prima di salvarlo devo verificare se la banca dati esterna lo censisce
+		LOGGER.info("....invocazione servizio esterno per censimento nuovo...");
 		ResponseEntity<OrganoPrevidenzaResponseDTO> response = webClient.post().uri("")
 				.body(Mono.just(new OrganoPrevidenzaRequestDTO(dipendenteInput.getNome(), dipendenteInput.getCognome(),
 						dipendenteInput.getCf())), OrganoPrevidenzaRequestDTO.class)
@@ -77,6 +87,7 @@ public class DipendenteController {
 		if (response.getStatusCode() != HttpStatus.CREATED)
 			throw new RuntimeException("Errore nella creazione della nuova voce tramite api esterna!!!");
 
+		LOGGER.info("....invocazione servizio esterno per censimento nuovo avvenuta con successo");
 		Dipendente dipendenteInserito = dipendenteService.inserisciNuovo(dipendenteInput.buildDipendenteModel());
 		return DipendenteDTO.buildDipendenteDTOFromModel(dipendenteInserito);
 	}
